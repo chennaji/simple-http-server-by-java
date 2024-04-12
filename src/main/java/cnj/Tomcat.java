@@ -9,7 +9,8 @@ import java.util.concurrent.Executors;
 public class Tomcat {
     public static void main(String[] args) {
 	//启动tomcat
-        new Tomcat().start();
+        Tomcat tomcat = new Tomcat();
+        tomcat.start();
     }
 
     private void start() {
@@ -28,4 +29,5 @@ public class Tomcat {
             throw new RuntimeException(e);
         }
     }
+
 }
