@@ -1,16 +1,16 @@
-package cnj;
-
-import cnj.Exception.UrlNotMatchException;
 import cnj.annotation.WebServlet;
+import org.junit.Test;
 
 import java.io.File;
-import java.util.Map;
+import java.lang.annotation.Annotation;
+import java.nio.file.Path;
 import java.util.Stack;
 
-public class ServetMapping {
-    static Map<String, Class<?>> servletMap = new java.util.HashMap<>();
-    static{
+public class Test1 {
+    @Test
+    public void testGetUrlMapping() {
         String path = System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "java";
+        System.out.println("工作区路径：" + path);
         //创建一个栈,递归遍历类
         File rootDir = new File(path);
         Stack<File> stack = new Stack<>();
@@ -35,7 +35,7 @@ public class ServetMapping {
                         Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(className);
                         if (clazz.isAnnotationPresent(WebServlet.class)) {
                             WebServlet annotation = clazz.getAnnotation(WebServlet.class);
-                            servletMap.put(annotation.value(), clazz);
+                            System.out.println(className + " " + annotation.value());
                         }
                     } catch (ClassNotFoundException e) {
                         throw new RuntimeException(e);
@@ -43,14 +43,5 @@ public class ServetMapping {
                 }
             }
         }
-    }
-    public static Class<?> getServletClass(String url) throws UrlNotMatchException {
-        //url无效则抛出错误
-        if(!servletMap.containsKey(url)){
-            throw new UrlNotMatchException("无效的url");
-        }
-        System.out.println("即将匹配的url为：" + url);
-        System.out.println("匹配的servlet为：" + servletMap.get(url).getName());
-        return servletMap.get(url);
     }
 }

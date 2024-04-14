@@ -10,6 +10,7 @@ public class TestServlet extends AbstractServlet {
 
     @Override
     public void doGet(Request request, Response response) {
+        response.setStatus(200);
         System.out.println("TestServet方法执行：doGet");
     }
 
