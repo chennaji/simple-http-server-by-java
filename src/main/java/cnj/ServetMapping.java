@@ -9,6 +9,10 @@ import java.util.Stack;
 
 public class ServetMapping {
     static Map<String, Class<?>> servletMap = new java.util.HashMap<>();
+    enum URL_TYPE{
+        HTML,
+        SERVLET
+    }
     static{
         String path = System.getProperty("user.dir") + File.separator + "src" + File.separator + "main" + File.separator + "java";
         //创建一个栈,递归遍历类

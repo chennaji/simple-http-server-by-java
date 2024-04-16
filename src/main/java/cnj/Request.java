@@ -2,11 +2,12 @@ package cnj;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Socket;
 import java.util.Map;
 
 public class Request {
     //传入请求的Socket
-    private ProcessSocket socket;
+    private Socket socket;
     private byte[] rawRequestData = new byte[1460];
     //请求行
     private String method;
@@ -17,13 +18,13 @@ public class Request {
     //请求体
     private String body;//post数据在请求体中
     private Map<String,String> params = new java.util.HashMap<>();//get数据在url中
-    public Request(ProcessSocket socket) {
+    public Request(Socket socket) {
         this.socket = socket;
         readData();
     }
     private void readData() {
         try {
-            InputStream inputStream = socket.getSocket().getInputStream();
+            InputStream inputStream = socket.getInputStream();
             //读取请求数据
             inputStream.read(this.rawRequestData);
         } catch (IOException e) {
@@ -84,8 +85,6 @@ public class Request {
         //解析请求体
     }
     public void printRawSocketData() {
-        //打印Socket ID
-        System.out.println("Socket ID: " + socket.getSocketId());
         for (byte b : rawRequestData) {
             System.out.print((char) b);
         }
@@ -122,5 +121,9 @@ public class Request {
                 ", \n\theaders=" + headers +
                 ", \n\tbody='" + body + '\'' +
                 "\n}";
+    }
+
+    public Socket getSocket() {
+        return socket;
     }
 }

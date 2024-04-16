@@ -1,9 +1,5 @@
 package cnj;
 
-import cnj.Exception.UrlNotMatchException;
-import cnj.examples.DefaultServlet;
-
-import java.io.IOException;
 import java.net.Socket;
 
 public class ProcessSocket implements Runnable {
@@ -21,60 +17,43 @@ public class ProcessSocket implements Runnable {
         /**
          * 整体逻辑：
          * 1.解析请求，实例化Request对象
-         * 2.根据url，获取对应的Servlet
-         * 3.根据Servlet的执行结果，组装Response对象
+         * 2.根据url，判断请求资源类型：html、servlet
+         * 3.调用对应的处理器，处理请求
          * 4.发送响应
          */
         //1.解析请求，实例化Request对象
-        Request request = new Request(this);
+        Request request = new Request(this.socket);
         request.parseRequest();
         System.out.println(request);
 
-        //2.根据url，获取对应的Servlet
+        //2.根据url，判断请求资源类型：html、servlet
         String url = request.getUrl();
-        Class<?> clazz = null;
-        try {
-            clazz = ServetMapping.getServletClass(url);
-        } catch (UrlNotMatchException e) {
-            clazz = DefaultServlet.class;
-        }
-        Object targetServlet = null;
-        try {
-            targetServlet = clazz.newInstance();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+        ServetMapping.URL_TYPE urlType;
+        if (url.endsWith(".html"))
+            urlType = ServetMapping.URL_TYPE.HTML;
+        else
+            urlType = ServetMapping.URL_TYPE.SERVLET;
+        Response response = null;
+        switch (urlType) {
+            //3.调用对应的处理器，处理请求
+            case HTML: {
+                //处理静态资源
+                UrlHandle matcher = new HTMLHandler();
+                response = matcher.handleURL(request,url);
+                break;
+            }
+            case SERVLET: {
+                //处理动态资源
+                UrlHandle matcher = new ServletHandler();
+                response = matcher.handleURL(request,url);
+                break;
+            }
         }
 
-        //3.根据Servlet的执行结果，组装Response对象
-        String method = request.getMethod();
-        Response response = new Response(this);
-        switch (method) {
-            case "GET": {
-                try {
-                    ((AbstractServlet) targetServlet).doGet(request, response);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                break;
-            }
-            case "POST": {
-                try {
-                    ((AbstractServlet) targetServlet).doPost(request, response);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                break;
-            }
-            default:
-                throw new RuntimeException("不支持的请求方法");
-        }
         //4.发送响应
         response.sendResponse();
         response.printResponse();
     }
-
 
     public Socket getSocket() {
         return socket;

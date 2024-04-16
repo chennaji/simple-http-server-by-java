@@ -1,15 +1,16 @@
 package cnj;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.util.Map;
 
 public class Response {
+    private Socket socket;
     private String version;
     private int status;
     private String message;
     private Map<String,String> headers = new java.util.HashMap<>();
-    //TODO: 为response添加更多的属性，和set方法，以供Servet中调用
-    private String body;
+    private StringBuilder body;
     /**
      * 已完成组装的响应行
      */
@@ -23,9 +24,7 @@ public class Response {
      */
     private String responseBody;
 
-    private ProcessSocket socket;
-
-    public Response(ProcessSocket socket){
+    public Response(Socket socket){
         this.socket = socket;
         initializeResponse();
     }
@@ -50,7 +49,7 @@ public class Response {
         this.responseHeader = stringBuilder.toString();
     }
     private void parseResponseBody(){
-        this.responseBody = body;
+        this.responseBody = body.toString();
     }
     public void printResponse(){
         System.out.println("Response:{");
@@ -66,7 +65,7 @@ public class Response {
         headers.put("Connection", "keep-alive");
         headers.put("Content-Type", "text/plain; charset=utf-8");//其他格式：text/html、application/json、image/jpeg
         headers.put("Server", "cnj");
-        this.body = "";
+        this.body = new StringBuilder();
     }
     public void sendResponse(){
         parseResponseLine();
@@ -74,7 +73,7 @@ public class Response {
         parseResponseBody();
         String response = responseLine + responseHeader + responseBody;
         try {
-            socket.getSocket().getOutputStream().write(response.getBytes());
+            socket.getOutputStream().write(response.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -96,7 +95,22 @@ public class Response {
     public void addHeader(String key, String value){
         headers.put(key, value);
     }
-    public void setBody(String body) {
-        this.body = body;
+    public void write(String body){
+        this.body.append(body);
+        //如果是text/plain，需要计算Content-Length
+        if(headers.get("Content-Type").equals("text/plain;charset=UTF-8")){
+            //如果已经有Content-Length，需要加上原来的长度
+            if (headers.containsKey("Content-Length")) {
+                int prevLength = Integer.parseInt(headers.get("Content-Length"));
+                int newLength = prevLength + body.length();
+                headers.put("Content-Length", String.valueOf(newLength));
+            } else {
+                int newLength = body.length();
+                headers.put("Content-Length", String.valueOf(newLength));
+            }
+        }
+    }
+    public Socket getSocket() {
+        return socket;
     }
 }

@@ -7,14 +7,12 @@ import cnj.annotation.WebServlet;
 
 import java.io.IOException;
 
-@WebServlet("/test")
-public class TestServlet extends AbstractServlet {
-
-    @Override
+@WebServlet("/testWriteHtml")
+public class TestServeltWriteHtml extends AbstractServlet {
     public void doGet(Request request, Response response) throws IOException {
         response.setStatus(200);
         response.addHeader("Content-Type", "text/html;charset=UTF-8");
-        response.setBody("<html>\n" +
+        response.write("<html>\n" +
                 "<head>\n" +
                 "    <meta charset=\"UTF-8\">\n" +
                 "    <meta name=\"viewport\"\n" +
@@ -29,7 +27,7 @@ public class TestServlet extends AbstractServlet {
     }
 
     @Override
-    public void doPost(Request request, Response response) {
-        System.out.println("TestServet方法执行：doPost");
+    public void doPost(Request request, Response response) throws IOException {
+
     }
 }
