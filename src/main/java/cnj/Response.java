@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 public class Response {
-    private String version = "HTTP/1.1 ";
+    private String version;
     private int status;
     private String message;
     private Map<String,String> headers = new java.util.HashMap<>();
@@ -27,6 +27,7 @@ public class Response {
 
     public Response(ProcessSocket socket){
         this.socket = socket;
+        initializeResponse();
     }
 
     private void parseResponseLine(){
@@ -52,9 +53,21 @@ public class Response {
         this.responseBody = body;
     }
     public void printResponse(){
-        System.out.println(responseLine + responseHeader + responseBody);
+        System.out.println("Response:{");
+        System.out.println(responseLine + responseHeader + responseBody + "}");
     }
 
+    public void initializeResponse() {
+        this.version = "HTTP/1.1 ";
+        this.status = 200;
+        this.message = "OK";
+        //设置浏览器必须检查的头部默认值
+        headers.put("Cache-Control", "no-cache");
+        headers.put("Connection", "keep-alive");
+        headers.put("Content-Type", "text/plain; charset=utf-8");//其他格式：text/html、application/json、image/jpeg
+        headers.put("Server", "cnj");
+        this.body = "";
+    }
     public void sendResponse(){
         parseResponseLine();
         parseResponseHeader();

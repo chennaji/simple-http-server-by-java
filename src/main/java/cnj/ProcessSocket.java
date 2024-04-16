@@ -3,7 +3,9 @@ package cnj;
 import cnj.Exception.UrlNotMatchException;
 import cnj.examples.DefaultServlet;
 
+import java.io.IOException;
 import java.net.Socket;
+
 public class ProcessSocket implements Runnable {
     private Socket socket;
     int socketId;
@@ -49,17 +51,28 @@ public class ProcessSocket implements Runnable {
         String method = request.getMethod();
         Response response = new Response(this);
         switch (method) {
-            case "GET":
-                ((AbstractServlet) targetServlet).doGet(request,response);
+            case "GET": {
+                try {
+                    ((AbstractServlet) targetServlet).doGet(request, response);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 break;
-            case "POST":
-                ((AbstractServlet) targetServlet).doPost(request,response);
+            }
+            case "POST": {
+                try {
+                    ((AbstractServlet) targetServlet).doPost(request, response);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 break;
+            }
             default:
                 throw new RuntimeException("不支持的请求方法");
         }
         //4.发送响应
         response.sendResponse();
+        response.printResponse();
     }
 
 
