@@ -8,13 +8,9 @@ import java.io.IOException;
 public class ServletHandler implements UrlHandle {
 
     @Override
-    public Response handleURL(Request request, String url) {
+    public Response handleURL(Request request, String url) throws UrlNotMatchException {
         Class<?> clazz = null;
-        try {
-            clazz = ServetMapping.getServletClass(url);
-        } catch (UrlNotMatchException e) {
-            clazz = DefaultServlet.class;
-        }
+        clazz = ServetMapping.getServletClass(url);
         Object targetServlet = null;
         try {
             targetServlet = clazz.newInstance();

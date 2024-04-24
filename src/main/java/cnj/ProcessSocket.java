@@ -1,5 +1,7 @@
 package cnj;
 
+import cnj.Exception.UrlNotMatchException;
+
 import java.net.Socket;
 
 public class ProcessSocket implements Runnable {
@@ -39,13 +41,21 @@ public class ProcessSocket implements Runnable {
             case HTML: {
                 //处理静态资源
                 UrlHandle matcher = new HTMLHandler();
-                response = matcher.handleURL(request,url);
+                try {
+                    response = matcher.handleURL(request,url);
+                } catch (UrlNotMatchException e) {
+                    e.printStackTrace();
+                }
                 break;
             }
             case SERVLET: {
                 //处理动态资源
                 UrlHandle matcher = new ServletHandler();
-                response = matcher.handleURL(request,url);
+                try {
+                    response = matcher.handleURL(request,url);
+                } catch (UrlNotMatchException e) {
+                    e.printStackTrace();
+                }
                 break;
             }
         }
